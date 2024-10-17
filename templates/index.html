@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        async function trackShipment(event) {
+            event.preventDefault();  // Prevent the form from submitting the default way
+            const trackingNumber = document.getElementById('tracking_number').value;
+
+            try {
+                const response = await fetch('/track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ tracking_number: trackingNumber }),
+                });
+
+                const data = await response.json();
+                displayResults(data);  // Call the function to display results
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayResults(data) {
+            const resultTableBody = document.getElementById('resultTableBody');
+            resultTableBody.innerHTML = '';  // Clear previous results
+
+            if (data.error) {
+                resultTableBody.innerHTML = `<tr><td colspan="7">${data.error}</td></tr>`;
+            } else {
+                data.forEach(item => {
+                    const row = `<tr>
+                        <td>${item.trackingNumber || 'N/A'}</td>
+                        <td>${item.timestamp || 'N/A'}</td>
+                        <td>${item.location || 'N/A'}</td>
+                        <td>${item.countryCode || 'N/A'}</td>
+                        <td>${item.statusCode || 'N/A'}</td>
+                        <td>${item.status || 'N/A'}</td>
+                        <td>${item.description || 'N/A'}</td>
+                    </tr>`;
+                    resultTableBody.innerHTML += row;
+                });
+            }
+        }
+
+        // function displayTrackingResults(data) {
+        //     const resultTableBody = document.getElementById('resultTableBody');
+        //     resultTableBody.innerHTML = '';  // Clear previous results
+
+        //     if (data.error) {
+        //         resultTableBody.innerHTML = `<tr><td colspan="7">${data.error}</td></tr>`;
+        //     } else {
+        //         data.forEach(item => {
+        //             const row = `<tr>
+        //                 <td>${item.trackingNumber || 'N/A'}</td>
+        //                 <td>${item.timestamp || 'N/A'}</td>
+        //                 <td>${item.location || 'N/A'}</td>
+        //                 <td>${item.countryCode || 'N/A'}</td>
+        //                 <td>${item.statusCode || 'N/A'}</td>
+        //                 <td>${item.status || 'N/A'}</td>
+        //                 <td>${item.description || 'N/A'}</td>
+        //             </tr>`;
+        //             resultTableBody.innerHTML += row;
+        //         });
+        //     }
+        // }
+        async function findServicePoints(event) {
+            event.preventDefault();  // Prevent the form from submitting the default way
+            const radius = document.getElementById('radius').value;
+            const countryCode = document.getElementById('country_code').value;
+            try {
+                const response = await fetch(`/service-points?radius=${radius}&countryCode=${countryCode}`, {
+                    method: 'GET',
+                });
+
+                const data = await response.json();
+                displayServicePoints(data);  // Call the function to display service points
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayServicePoints(data) {
+            const servicePointsResultDiv = document.getElementById('servicePointsResult');
+            servicePointsResultDiv.innerHTML = '';  // Clear previous results
+
+            if (data.error) {
+                servicePointsResultDiv.innerHTML = `<p>${data.error}</p>`;
+            } else {
+                let locationsHtml = '<ul>';
+                data.forEach(location => {
+                    locationsHtml += `<li>${location.name}</li>`;
+                });
+                locationsHtml += '</ul>';
+                servicePointsResultDiv.innerHTML = locationsHtml;
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h1>Track Your Shipment</h1>
+    <form onsubmit="trackShipment(event)">
+        <label for="tracking_number">Tracking Number:</label>
+        <input type="text" id="tracking_number" name="tracking_number" required>
+        <button type="submit">Track</button>
+    </form>
+    
+    <h2>Result:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tracking Number</th>
+                <th>Timestamp</th>
+                <th>Location</th>
+                <th>Country Code</th>
+                <th>Status Code</th>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody id="resultTableBody">
+            <!-- Results will be dynamically populated here -->
+        </tbody>
+    </table>
+
+    <h2>Find DHL Service Points</h2>
+    <form onsubmit="findServicePoints(event)">
+        <label for="country_code">Country Code:</label>
+        <input type="text" id="country_code" name="country_code" required>
+
+        <label for="radius">Radius (meters, optional):</label>
+        <input type="number" id="radius" name="radius" placeholder="5000">
+        <button type="submit">Find Service Points</button>
+    </form>
+
+    <h3>Service Points Result:</h3>
+    <div id="servicePointsResult">
+        <!-- Service points will be dynamically populated here -->
+    </div>
+</body>
+</html>
