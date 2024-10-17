@@ -29,16 +29,19 @@ Find DHL service points within a specified radius from a given address
 4. Configuration
 
    Create a .env file in the project root and add the following variables: 
-   API_KEY=[Your DHL API Key]
-   API_SECRET=[Your DHL API Secret]
+   DHL_API_KEY=[Your DHL API Key]
+   DHL_API_SECRET=[Your DHL API Secret]
    BASE_URL_SHIPMENT=[DHL Shipment API Base URL]
    BASE_URL_LOCATION=[DHL Location API Base URL]
+   APP_API_KEY=testing         //The app uses a key to verify from external resources, kindly use this
+   API_CALLS_LIMIT_LOCATION=500         //Location API limit , can be changed if upgraded
+   API_CALLS_LIMIT_TRACKING=250         //Tracker API limit, can be changed if upgraded
 
 5. Run the application in main directory 
    flask run
 
 # UI testing
-1. The initally local endpoint '/' loads index.html which has UI components to test the application 
+1. The initial local endpoint '/' loads index.html which has UI components to test the application 
 
 # API Testing
 You can also test the functionalties by making use of any postman or API software and test the following endpoints
@@ -49,7 +52,7 @@ You can also test the functionalties by making use of any postman or API softwar
 
 Content-type:application/json
 Accept:application/json
-
+X-API-key:testing
 # Request body:-
 
 {
@@ -66,6 +69,7 @@ Offset is set to 0 by default
 
 List of last event for each shipment as objects
 Example:-
+200 code
 [
     {
         "countryCode": "GB",
@@ -78,11 +82,17 @@ Example:-
     }
 ]
 
-404,400 Error codes possible
+Error codes:-
+400 - Bad request
+404 - Resource not found
+500 - Server error
 
 
 2. GET http://{localhost}:{port}/service-points
 
+# Headers:-
+
+X-API-key:testing
 
 # Request params:-
 
@@ -95,6 +105,7 @@ limit is set to 50 by default
 
 List of service points based on provided city and country code 
 Example:-
+200 code
 [
     {
         "name": "Ryman Birmingham Temple St"
@@ -113,4 +124,8 @@ Example:-
     }
 ]
 
-404,400 Error codes possible
+Error codes 
+
+400 - Bad request
+404 - Resource not found
+500 - Server error

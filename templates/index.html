@@ -25,7 +25,7 @@
     </style>
     <script>
         async function trackShipment(event) {
-            event.preventDefault();  // Prevent the form from submitting the default way
+            event.preventDefault(); 
             const trackingNumber = document.getElementById('tracking_number').value;
 
             try {
@@ -33,6 +33,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-API-Key': 'testing'  // Added custom header for api validation
                     },
                     body: JSON.stringify({ tracking_number: trackingNumber }),
                 });
@@ -66,34 +67,16 @@
             }
         }
 
-        // function displayTrackingResults(data) {
-        //     const resultTableBody = document.getElementById('resultTableBody');
-        //     resultTableBody.innerHTML = '';  // Clear previous results
-
-        //     if (data.error) {
-        //         resultTableBody.innerHTML = `<tr><td colspan="7">${data.error}</td></tr>`;
-        //     } else {
-        //         data.forEach(item => {
-        //             const row = `<tr>
-        //                 <td>${item.trackingNumber || 'N/A'}</td>
-        //                 <td>${item.timestamp || 'N/A'}</td>
-        //                 <td>${item.location || 'N/A'}</td>
-        //                 <td>${item.countryCode || 'N/A'}</td>
-        //                 <td>${item.statusCode || 'N/A'}</td>
-        //                 <td>${item.status || 'N/A'}</td>
-        //                 <td>${item.description || 'N/A'}</td>
-        //             </tr>`;
-        //             resultTableBody.innerHTML += row;
-        //         });
-        //     }
-        // }
         async function findServicePoints(event) {
-            event.preventDefault();  // Prevent the form from submitting the default way
+            event.preventDefault();  
             const radius = document.getElementById('radius').value;
             const countryCode = document.getElementById('country_code').value;
             try {
                 const response = await fetch(`/service-points?radius=${radius}&countryCode=${countryCode}`, {
                     method: 'GET',
+                    headers: {
+                    'X-API-Key': 'testing'  // Added custom header for api validation
+                    }
                 });
 
                 const data = await response.json();
@@ -143,7 +126,6 @@
             </tr>
         </thead>
         <tbody id="resultTableBody">
-            <!-- Results will be dynamically populated here -->
         </tbody>
     </table>
 
@@ -159,7 +141,6 @@
 
     <h3>Service Points Result:</h3>
     <div id="servicePointsResult">
-        <!-- Service points will be dynamically populated here -->
     </div>
 </body>
 </html>
